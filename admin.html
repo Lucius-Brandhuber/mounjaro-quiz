@@ -152,6 +152,12 @@ tbody td{padding:11px 14px;vertical-align:middle;white-space:nowrap}
       <div class="card-body"><svg id="areaChart" height="190"></svg></div>
     </div>
 
+    <!-- Vendas Payt -->
+    <div class="card" id="vendas-card">
+      <div class="card-hdr"><span class="card-title">Vendas (Payt)</span><span class="tb-sync" id="vendasSync"></span></div>
+      <div class="card-body" id="vendasBody"><p style="color:#bbb;font-size:13px">Carregando dados de vendas…</p></div>
+    </div>
+
     <!-- Conversion Analysis -->
     <div class="card">
       <div class="card-hdr"><span class="card-title">Análise de Conversão</span></div>
@@ -222,6 +228,7 @@ async function init(){
   const cached = merge(getCache(), getLocal());
   if(cached.length){ _ev = cached; render(); }
   sync();
+  initVendas();
 }
 
 async function sync(){
@@ -596,6 +603,94 @@ function resetLeads(){
     render();
     toast('Dados apagados com sucesso ✓');
   }, 1000);
+}
+
+/* ─── VENDAS PAYT ─── */
+let _vendas = [];
+
+async function fetchVendas(){
+  try{
+    const r = await fetch(GAS+'?sheet=vendas');
+    const d = await r.json();
+    return Array.isArray(d) ? d : [];
+  }catch(e){ return []; }
+}
+
+function renderVendas(){
+  const v = _vendas;
+  if(!v.length){
+    document.getElementById('vendasBody').innerHTML='<p style="color:#bbb;font-size:13px">Nenhuma venda registrada ainda.</p>';
+    return;
+  }
+
+  const aprovadas  = v.filter(e=>(e.status||'').toLowerCase().includes('finaliz')||( e.status||'').toLowerCase().includes('aprovad'));
+  const aguardando = v.filter(e=>(e.status||'').toLowerCase().includes('aguardando'));
+  const canceladas = v.filter(e=>(e.status||'').toLowerCase().includes('cancelad'));
+  const expiradas  = v.filter(e=>(e.status||'').toLowerCase().includes('expir'));
+  const abandono   = v.filter(e=>(e.status||'').toLowerCase().includes('abandon'));
+
+  function metodoCount(list, term){ return list.filter(e=>(e.metodo||'').toLowerCase().includes(term)).length; }
+  const pix    = metodoCount(aprovadas,'pix');
+  const boleto = metodoCount(aprovadas,'boleto');
+  const cartao = metodoCount(aprovadas,'credit')||metodoCount(aprovadas,'card')||metodoCount(aprovadas,'cartao');
+
+  const receita = aprovadas.reduce((s,e)=>s+(parseFloat(e.valor)||0),0);
+
+  const kpis = [
+    {ico:'💰',lbl:'Receita Total',v:'R$ '+receita.toFixed(2).replace('.',',')},
+    {ico:'✅',lbl:'Vendas Aprovadas',v:aprovadas.length},
+    {ico:'⏳',lbl:'Aguardando Pagamento',v:aguardando.length},
+    {ico:'❌',lbl:'Canceladas',v:canceladas.length},
+    {ico:'⌛',lbl:'Pagamento Expirado',v:expiradas.length},
+    {ico:'🚪',lbl:'Abandono de Checkout',v:abandono.length},
+  ];
+
+  const metodos = `
+    <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:20px">
+      <div class="stat"><div class="stat-v">${pix}</div><div class="stat-l">Pix aprovados</div></div>
+      <div class="stat"><div class="stat-v">${boleto}</div><div class="stat-l">Boletos aprovados</div></div>
+      <div class="stat"><div class="stat-v">${cartao}</div><div class="stat-l">Cartão aprovados</div></div>
+    </div>`;
+
+  const rows = [...v].reverse().slice(0,20).map(e=>{
+    const status = e.status||'';
+    const cor = status.toLowerCase().includes('finaliz')||status.toLowerCase().includes('aprovad') ? '#16a34a'
+              : status.toLowerCase().includes('aguard') ? '#d97706'
+              : '#ef4444';
+    const dt = e.data ? new Date(e.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+    return `<tr>
+      <td>${dt}</td>
+      <td><span style="color:${cor};font-weight:700;font-size:12px">${status}</span></td>
+      <td>${e.metodo||'—'}</td>
+      <td>R$ ${parseFloat(e.valor||0).toFixed(2).replace('.',',')}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.nome||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('vendasBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:8px">
+      ${kpis.map(k=>`<div class="kpi-card"><div class="kpi-ico">${k.ico}</div><div class="kpi-val">${k.v}</div><div class="kpi-lbl">${k.lbl}</div></div>`).join('')}
+    </div>
+    ${metodos}
+    <div style="margin-top:20px;overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="border-bottom:2px solid #f0f2f5;color:#aaa;font-size:11px;text-transform:uppercase">
+          <th style="padding:8px 6px;text-align:left">Data</th>
+          <th style="padding:8px 6px;text-align:left">Status</th>
+          <th style="padding:8px 6px;text-align:left">Método</th>
+          <th style="padding:8px 6px;text-align:left">Valor</th>
+          <th style="padding:8px 6px;text-align:left">Nome</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+async function initVendas(){
+  document.getElementById('vendasSync').textContent='Sincronizando…';
+  _vendas = await fetchVendas();
+  document.getElementById('vendasSync').textContent='';
+  renderVendas();
 }
 
 /* ─── RESIZE ─── */
