@@ -4,601 +4,579 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin — Mounjaro de Pobre</title>
+<script defer src="/_vercel/insights/script.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Arial,sans-serif;background:#f5f6fa;color:#1a1a2e;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
 
-/* GATE */
-#gate{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a1a2e,#16213e)}
-.gate-box{background:#fff;border-radius:20px;padding:40px 32px;text-align:center;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
-.gate-box h2{font-size:22px;margin-bottom:6px}
-.gate-box p{font-size:13px;color:#888;margin-bottom:24px}
-.gate-input{width:100%;padding:12px 16px;border:2px solid #e5e7eb;border-radius:10px;font-size:16px;outline:none;transition:.2s}
-.gate-input:focus{border-color:#3db8ac}
-.gate-btn{width:100%;margin-top:12px;padding:14px;background:#3db8ac;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s}
-.gate-btn:hover{background:#2a9d8f}
-.gate-err{color:#e63946;font-size:12px;margin-top:10px;display:none}
+/* ── LOGIN ── */
+#gate{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.lcard{background:#fff;border-radius:18px;padding:48px 40px;width:380px;box-shadow:0 4px 32px rgba(0,0,0,.09)}
+.lcard h1{font-size:22px;font-weight:800;margin-bottom:6px}
+.lcard p{color:#999;font-size:14px;margin-bottom:28px}
+.lcard input{width:100%;padding:13px 16px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;outline:none;transition:.2s}
+.lcard input:focus{border-color:#4A7AF5}
+.lcard button{width:100%;margin-top:14px;padding:14px;background:#4A7AF5;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s}
+.lcard button:hover{background:#3a6ae5}
+.lcard .err{color:#e53e3e;font-size:13px;margin-top:10px;display:none}
 
-/* DASHBOARD */
-#dash{display:none}
+/* ── TOPBAR ── */
+#dash{display:none;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid #eee;padding:0 28px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.tb-brand{font-weight:800;font-size:15px;color:#1a1a2e;display:flex;align-items:center;gap:8px}
+.tb-spacer{flex:1}
+.tb-sync{font-size:12px;color:#4A7AF5;font-weight:500}
+.tb-datechip{display:flex;align-items:center;gap:8px;background:#f5f5f7;border:1px solid #e5e5e5;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:500;cursor:default}
+.tb-datechip svg{width:13px;height:13px;color:#888}
+.tb-refresh{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:#f5f5f7;border:1px solid #e5e5e5;border-radius:8px;cursor:pointer;font-size:17px;transition:.2s}
+.tb-refresh:hover{background:#eaeaef;transform:rotate(45deg)}
 
-/* Header */
-.adm-hdr{background:#fff;border-bottom:1px solid #e5e7eb;padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:10}
-.adm-logo{font-size:15px;font-weight:800}
-.adm-logo span{color:#3db8ac}
-.adm-hdr-right{margin-left:auto;display:flex;gap:10px;align-items:center}
-.date-badge{background:#f3f4f6;border-radius:8px;padding:8px 14px;font-size:12px;color:#555;display:flex;align-items:center;gap:6px}
-.refresh-btn{background:#f3f4f6;border:none;border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:.2s}
-.refresh-btn:hover{background:#e5e7eb}
-.clear-btn{background:#fff0f0;color:#e63946;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer}
+/* ── CONTENT ── */
+.content{padding:24px 28px;max-width:1440px;margin:0 auto}
 
-/* Main */
-.adm-main{padding:24px;max-width:1400px;margin:0 auto}
+/* ── KPI ROW ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:22px}
+.kc{background:#fff;border-radius:14px;padding:20px 22px;border:1px solid #efefef}
+.kc-ico{width:34px;height:34px;border-radius:9px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:14px}
+.kc-lbl{font-size:11px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.kc-val{font-size:30px;font-weight:900;color:#1a1a2e;line-height:1;margin-bottom:5px}
+.kc-sub{font-size:11px;color:#bbb}
 
-/* KPIs */
-.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
-@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
-.kpi{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-left:3px solid #3db8ac}
-.kpi-label{font-size:11px;color:#999;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.kpi-val{font-size:30px;font-weight:800;color:#1a1a2e;line-height:1}
-.kpi-sub{font-size:11px;color:#bbb;margin-top:6px;line-height:1.4}
+/* ── CARD ── */
+.card{background:#fff;border-radius:14px;border:1px solid #efefef;margin-bottom:22px;overflow:hidden}
+.card-hdr{padding:18px 22px 4px;display:flex;align-items:center;gap:12px}
+.card-title{font-size:15px;font-weight:700;color:#1a1a2e}
+.card-body{padding:12px 22px 22px}
 
-/* Cards */
-.card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.card-title{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+/* ── AREA CHART ── */
+#areaChart{width:100%;display:block}
 
-/* Area chart */
-.area-wrap{margin-bottom:24px}
-.area-svg{width:100%;height:160px;overflow:visible}
+/* ── TABS ── */
+.tabs{display:flex;gap:3px;background:#f0f2f5;border-radius:10px;padding:4px;width:fit-content;margin-bottom:20px}
+.tab{padding:7px 18px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:#777;border:none;background:none;transition:.15s}
+.tab.active{background:#fff;color:#1a1a2e;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,.1)}
 
-/* Two col */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+/* ── FUNNEL ── */
+#funnelWrap{overflow-x:auto;padding-bottom:4px}
 
-/* Funnel list */
-.funnel-list{list-style:none}
-.funnel-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;margin-bottom:4px;transition:.15s;border:1.5px solid transparent}
-.funnel-item:hover{background:#f0faf9}
-.funnel-item.active{background:#f0faf9;border-color:#3db8ac}
-.fi-name{font-size:12px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#333}
-.fi-bar-bg{width:80px;background:#f3f4f6;border-radius:3px;height:6px;flex-shrink:0}
-.fi-bar{height:6px;border-radius:3px;background:#3db8ac;transition:.4s}
-.fi-count{font-size:12px;color:#666;width:28px;text-align:right;flex-shrink:0}
-.fi-pct{font-size:11px;color:#aaa;width:38px;text-align:right;flex-shrink:0}
+/* ── EVENTS TABLE ── */
+.tbl-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;background:#fff;cursor:pointer;color:#333;font-weight:500;white-space:nowrap;transition:.15s}
+.tbtn:hover{background:#f5f5f5}
+.tbtn.red{color:#dc2626;border-color:#fca5a5}
+.tbtn.red:hover{background:#fff5f5}
+.pg-sel{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:13px;color:#555}
+.pg-sel select{border:1px solid #e0e0e0;border-radius:7px;padding:7px 10px;font-size:13px;background:#fff;cursor:pointer}
 
-/* Step detail */
-.detail-placeholder{text-align:center;padding:40px 16px;color:#ccc;font-size:13px}
-.detail-placeholder div{font-size:28px;margin-bottom:10px}
-.d-title{font-size:15px;font-weight:700;margin-bottom:4px}
-.d-sub{font-size:12px;color:#999;margin-bottom:18px}
-.d-stat-row{display:flex;gap:12px;margin-bottom:18px}
-.d-stat{background:#f8fffe;border:1px solid #d0f0ed;border-radius:10px;padding:12px 16px;flex:1;text-align:center}
-.d-stat-val{font-size:22px;font-weight:800;color:#3db8ac}
-.d-stat-label{font-size:11px;color:#999;margin-top:2px}
-.ans-section-title{font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
-.ans-item{margin-bottom:10px}
-.ans-meta{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
-.ans-meta span:first-child{color:#444;max-width:72%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ans-meta span:last-child{color:#999;flex-shrink:0}
-.ans-bg{background:#f3f4f6;border-radius:4px;height:7px}
-.ans-fill{height:7px;border-radius:4px;background:linear-gradient(90deg,#3db8ac,#2a9d8f);transition:.5s}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{padding:10px 14px;text-align:left;font-weight:600;color:#777;border-bottom:1.5px solid #f0f0f0;white-space:nowrap;background:#fafafa}
+tbody tr{border-bottom:1px solid #f5f5f7;transition:.1s}
+tbody tr:hover{background:#f8f9ff}
+tbody td{padding:11px 14px;vertical-align:middle;white-space:nowrap}
 
-/* Three col */
-.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
-@media(max-width:900px){.three-col{grid-template-columns:1fr}}
+.td-lead{display:flex;align-items:center;gap:10px}
+.avatar{width:30px;height:30px;border-radius:50%;background:#e8ecff;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.src{display:flex;align-items:center;gap:5px;color:#444}
+.src-dot{width:8px;height:8px;border-radius:50%;background:#4A7AF5;display:inline-block}
+.bev{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.bev.view{background:#eef2ff;color:#4A7AF5}
+.bev.ans{background:#f0fdf4;color:#16a34a}
+.bev.chk{background:#fff7ed;color:#ea580c}
 
-/* Bar list */
-.bar-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f5}
-.bar-item:last-child{border:none}
-.bar-name{font-size:12px;color:#555;flex-shrink:0;width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar-bg{flex:1;background:#f3f4f6;border-radius:3px;height:6px}
-.bar-fill{height:6px;border-radius:3px;background:#3db8ac}
-.bar-count{font-size:12px;color:#999;flex-shrink:0;width:24px;text-align:right}
+.pag{display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-size:13px;color:#999}
+.pag-btns{display:flex;gap:5px}
+.pb{padding:6px 12px;border:1px solid #e0e0e0;border-radius:7px;cursor:pointer;background:#fff;font-size:13px;transition:.1s}
+.pb:hover{background:#f0f2f5}
+.pb.on{background:#4A7AF5;color:#fff;border-color:#4A7AF5}
 
-.empty-state{text-align:center;padding:32px 16px;color:#ccc;font-size:13px}
+/* ── RESUMO ── */
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mc{background:#f8f9ff;border-radius:12px;padding:20px}
+.mc h3{font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.bar-lbl{width:90px;font-size:12px;color:#666;flex-shrink:0;text-align:right;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:7px;background:#e5e7eb;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;background:#4A7AF5;transition:width .5s}
+.bar-n{width:36px;text-align:right;font-size:12px;font-weight:700;color:#333}
+.stat-row{display:flex;gap:28px;flex-wrap:wrap}
+.stat{text-align:left}
+.stat-v{font-size:26px;font-weight:900;color:#1a1a2e}
+.stat-l{font-size:11px;color:#aaa;margin-top:3px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:22px;right:22px;background:#1a1a2e;color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .res-grid{grid-template-columns:1fr}
+  .content{padding:16px}
+}
 </style>
-<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
-<!-- GATE -->
+<!-- ═══ LOGIN ═══ -->
 <div id="gate">
-  <div class="gate-box">
-    <div style="font-size:36px;margin-bottom:14px">🔒</div>
-    <h2>Painel Admin</h2>
-    <p>Mounjaro de Pobre — Analytics</p>
-    <input class="gate-input" type="password" id="pwd" placeholder="Senha" onkeydown="if(event.key==='Enter')auth()">
-    <button class="gate-btn" onclick="auth()">Entrar</button>
-    <div class="gate-err" id="err">Senha incorreta. Tente novamente.</div>
+  <div class="lcard">
+    <h1>Painel Admin</h1>
+    <p>Mounjaro de Pobre — acesso restrito</p>
+    <input type="password" id="pwd" placeholder="Senha" onkeydown="if(event.key==='Enter')auth()">
+    <button onclick="auth()">Entrar</button>
+    <div class="err" id="err">Senha incorreta.</div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
+<!-- ═══ DASHBOARD ═══ -->
 <div id="dash">
-  <div class="adm-hdr">
-    <div class="adm-logo">Mounjaro <span>de Pobre</span> &mdash; Admin</div>
-    <div class="adm-hdr-right">
-      <div class="date-badge">📅 <span id="dateRange">—</span></div>
-      <button class="refresh-btn" onclick="buildDash()" title="Atualizar">↻</button>
-      <button class="clear-btn" onclick="clearData()">Limpar dados</button>
+  <div class="topbar">
+    <div class="tb-brand">🔥 Mounjaro de Pobre</div>
+    <div class="tb-spacer"></div>
+    <span class="tb-sync" id="syncTxt"></span>
+    <div class="tb-datechip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span id="dateRange">—</span>
     </div>
+    <div class="tb-refresh" onclick="doRefresh()" title="Atualizar dados">↻</div>
   </div>
 
-  <div class="adm-main">
+  <div class="content">
+
     <!-- KPIs -->
     <div class="kpi-row" id="kpiRow"></div>
 
-    <!-- Area chart -->
-    <div class="area-wrap card">
-      <div class="card-title">📈 Acessos ao longo do tempo (últimos 14 dias)</div>
-      <svg class="area-svg" id="areaSvg" viewBox="0 0 800 150" preserveAspectRatio="none"></svg>
+    <!-- Area Chart -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Visitantes (14 dias)</span></div>
+      <div class="card-body"><svg id="areaChart" height="190"></svg></div>
     </div>
 
-    <!-- Funnel + Detail -->
-    <div class="two-col">
-      <div class="card">
-        <div class="card-title">🔽 Funil de Conversão — clique em uma etapa</div>
-        <ul class="funnel-list" id="funnelList"></ul>
-      </div>
-      <div class="card" id="stepDetail">
-        <div class="detail-placeholder"><div>👆</div>Clique em uma etapa para ver detalhes</div>
+    <!-- Conversion Analysis -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Análise de Conversão</span></div>
+      <div class="card-body">
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('funil',this)">Funil</button>
+          <button class="tab" onclick="switchTab('eventos',this)">Eventos</button>
+          <button class="tab" onclick="switchTab('resumo',this)">Resumo</button>
+        </div>
+        <div id="tab-funil"></div>
+        <div id="tab-eventos" style="display:none"></div>
+        <div id="tab-resumo" style="display:none"></div>
       </div>
     </div>
 
-    <!-- Checkout -->
-    <div class="card" style="margin-bottom:24px">
-      <div class="card-title">🛒 Cliques para o Checkout</div>
-      <div id="checkoutSection"></div>
-    </div>
-
-    <!-- Breakdowns -->
-    <div class="three-col">
-      <div class="card">
-        <div class="card-title">🌐 Fonte de Tráfego</div>
-        <div id="sourcePanel"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">⚧ Gênero</div>
-        <div id="genderPanel"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">📱 Dispositivo</div>
-        <div id="devicePanel"></div>
-      </div>
-    </div>
   </div>
 </div>
 
-<script>
-const PWD = 'L3c1U64&5';
-const KEY = 'mdjp_ev';
-const GAS = 'https://script.google.com/macros/s/AKfycby-7fqfYdyX3_ox1ooSlplYeo-UfHzzXh37g7PJNW0AlrxRjJ3eid5HBxr9i25LeBX8/exec';
+<div class="toast" id="toast"></div>
 
+<script>
+const PWD      = 'L3c1U64&5';
+const KEY      = 'mdjp_ev';
+const CKEY     = 'mdjp_admin_cache';
+const GAS      = 'https://script.google.com/macros/s/AKfycby-7fqfYdyX3_ox1ooSlplYeo-UfHzzXh37g7PJNW0AlrxRjJ3eid5HBxr9i25LeBX8/exec';
+
+let _ev = [];
+let _evPage = 1;
+let _evPP = 10;
+
+/* ─── AUTH ─── */
 function auth(){
   if(document.getElementById('pwd').value === PWD){
     document.getElementById('gate').style.display = 'none';
-    document.getElementById('dash').style.display = 'block';
-    buildDash();
+    document.getElementById('dash').style.display  = 'block';
+    init();
   } else {
     document.getElementById('err').style.display = 'block';
   }
 }
 
-function clearData(){
-  if(confirm('Apagar todos os dados de analytics?')){
-    localStorage.removeItem(KEY);
-    buildDash();
-  }
+/* ─── TOAST ─── */
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2800);
 }
 
-/* ---------- DATA ---------- */
-const CACHE_KEY = 'mdjp_admin_cache';
+/* ─── DATA ─── */
+function getLocal(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return []; } }
+function getCache(){ try{ return JSON.parse(localStorage.getItem(CKEY)||'[]'); }catch(e){ return []; } }
 
-function getCached(){
-  try{ return JSON.parse(localStorage.getItem(CACHE_KEY)||'[]'); }catch(e){ return []; }
-}
-
-function mergeEvents(a, b){
-  const seen = new Set(a.map(e=>e.s+'|'+e.ev+'|'+e.step));
-  b.forEach(e=>{ const k=e.s+'|'+e.ev+'|'+e.step; if(!seen.has(k)){seen.add(k);a.push(e);} });
+function merge(a, b){
+  const seen = new Set(a.map(e=>`${e.s}|${e.ev}|${e.step}|${e.t}`));
+  b.forEach(e=>{ const k=`${e.s}|${e.ev}|${e.step}|${e.t}`; if(!seen.has(k)){seen.add(k);a.push(e);} });
   return a;
 }
 
-async function getEvents(){
-  let local = [];
-  try{ local = JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){}
-  let remote = [];
+async function fetchGAS(){
   try{
     const r = await fetch(GAS);
-    remote = await r.json();
-    if(!Array.isArray(remote)) remote = [];
-    const merged = mergeEvents(remote, local);
-    localStorage.setItem(CACHE_KEY, JSON.stringify(merged));
-    return merged;
-  }catch(e){
-    return mergeEvents(getCached(), local);
-  }
+    const d = await r.json();
+    return Array.isArray(d) ? d : [];
+  }catch(e){ return []; }
 }
 
-/* ---------- MAIN BUILD ---------- */
-let _views=[], _answers=[];
-
-async function buildDash(){
-  // render instantly from cache, then refresh from remote
-  const cached = mergeEvents(getCached(), (()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){return[];}})());
-  if(cached.length > 0){
-    _views = cached.filter(e=>e.ev==='view');
-    _answers = cached.filter(e=>e.ev==='answer');
-    renderDash(cached);
-  }
-
-  // fetch remote in background
-  const indicator = document.createElement('div');
-  indicator.id='_loader';
-  indicator.style.cssText='position:fixed;top:12px;right:16px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;z-index:999';
-  indicator.textContent='Atualizando…';
-  document.getElementById('dash').appendChild(indicator);
-
-  const events = await getEvents();
-  indicator.remove();
-  _views = events.filter(e=>e.ev==='view');
-  _answers = events.filter(e=>e.ev==='answer');
-
-  renderDash(events);
+async function init(){
+  const cached = merge(getCache(), getLocal());
+  if(cached.length){ _ev = cached; render(); }
+  sync();
 }
 
-function renderDash(events){
-  _views = events.filter(e=>e.ev==='view');
-  _answers = events.filter(e=>e.ev==='answer');
-
-  const now = new Date();
-  const d14 = new Date(now - 14*86400000);
-  const fmt = d => d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
-  document.getElementById('dateRange').textContent = fmt(d14)+' – '+fmt(now);
-
-  buildKPIs();
-  buildAreaChart();
-  buildFunnel();
-  buildBreakdowns();
-  buildCheckout();
+async function sync(){
+  document.getElementById('syncTxt').textContent = 'Sincronizando…';
+  const remote = await fetchGAS();
+  const merged = merge(remote, getLocal());
+  localStorage.setItem(CKEY, JSON.stringify(merged));
+  _ev = merged;
+  document.getElementById('syncTxt').textContent = '';
+  render();
+  toast('Dados atualizados ✓');
 }
 
-/* ---------- UNIQUE SESSIONS PER STEP ---------- */
-function uniquePerStep(views){
-  // For each step, count unique session IDs (deduplicate back-navigation)
-  const map={};
+async function doRefresh(){ await sync(); }
+
+/* ─── UNIQUE SESSIONS PER STEP ─── */
+function uPerStep(views){
+  const m = {};
   views.forEach(e=>{
-    if(!map[e.step])map[e.step]=new Set();
-    map[e.step].add(e.s);
+    const k = String(e.step);
+    if(!m[k]) m[k] = new Set();
+    m[k].add(e.s);
   });
-  const counts={};
-  Object.keys(map).forEach(k=>{ counts[k]=map[k].size; });
-  return counts;
+  const c = {};
+  Object.keys(m).forEach(k=>{ c[k]=m[k].size; });
+  return c;
 }
 
-/* ---------- KPIs ---------- */
-function buildKPIs(){
-  const stepCounts = uniquePerStep(_views);
+/* ─── MAIN RENDER ─── */
+function render(){
+  const views    = _ev.filter(e=>e.ev==='view' && e.step!=='vendas');
+  const answers  = _ev.filter(e=>e.ev==='answer');
+  const checkouts= _ev.filter(e=>e.ev==='checkout_click');
+  const vViews   = _ev.filter(e=>e.ev==='view' && e.step==='vendas');
 
-  // step 0=landing, 1=gender, 2-40=quiz screens (39 screens), 40=final-result
-  const pageviews  = stepCounts[0]||0;
-  const leads      = stepCounts[1]||0;       // escolheu gênero
-  const qualified  = stepCounts[21]||0;      // ~50% do funil (step 2+19)
-  const completed  = stepCounts[40]||0;      // final-result (último screen, index 38)
-  const interacao  = pageviews>0 ? ((leads/pageviews)*100).toFixed(1)+'%' : '0%';
+  const sc = uPerStep(views);
 
-  document.getElementById('kpiRow').innerHTML = [
-    {label:'Pageviews',val:pageviews,sub:'Visitantes que acessaram o funil'},
-    {label:'Leads Adquiridos',val:leads,sub:'Iniciaram alguma interação'},
-    {label:'% Interação',val:interacao,sub:'Percentual de leads que interagiram'},
-    {label:'Leads Qualificados',val:qualified,sub:'Completaram 50% do funil'},
-    {label:'Fluxos Completos',val:completed,sub:'Chegaram até a última etapa'},
-  ].map(k=>`<div class="kpi"><div class="kpi-label">${k.label}</div><div class="kpi-val">${k.val}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
+  renderKPIs(sc, checkouts);
+  renderArea(views);
+  renderFunil(sc);
+  renderEventos();
+  renderResumo(sc, views, answers, checkouts, vViews);
+  updateDate();
 }
 
-/* ---------- AREA CHART ---------- */
-function buildAreaChart(){
-  const svg = document.getElementById('areaSvg');
-  const landing = _views.filter(e=>e.step===0);
+/* ─── KPIs ─── */
+function renderKPIs(sc, checkouts){
+  const pv   = sc['0']||0;
+  const lds  = sc['1']||0;
+  const qual = sc['21']||0;
+  const done = sc['40']||0;
+  const inter= pv>0?((lds/pv)*100).toFixed(1)+'%':'0%';
+  document.getElementById('kpiRow').innerHTML=[
+    {ico:'👁',lbl:'Pageviews',v:pv,sub:'Visitantes que acessaram o funil'},
+    {ico:'🙋',lbl:'Leads Adquiridos',v:lds,sub:'Iniciaram alguma interação'},
+    {ico:'⚡',lbl:'% Interação',v:inter,sub:'Percentual de leads que interagiram'},
+    {ico:'✅',lbl:'Leads Qualificados',v:qual,sub:'Completaram 50% do funil'},
+    {ico:'🏁',lbl:'Fluxos Completos',v:done,sub:'Chegaram até a última etapa'},
+  ].map(c=>`<div class="kc"><div class="kc-ico">${c.ico}</div><div class="kc-lbl">${c.lbl}</div><div class="kc-val">${c.v}</div><div class="kc-sub">${c.sub}</div></div>`).join('');
+}
 
-  if(!landing.length){
-    svg.innerHTML='<text x="400" y="75" text-anchor="middle" fill="#ccc" font-size="16" font-family="sans-serif">Sem dados ainda — faça algumas visitas ao quiz para ver o gráfico</text>';
-    return;
-  }
+/* ─── DATE ─── */
+function updateDate(){
+  const now=new Date(), d14=new Date(now-14*864e5);
+  const f=d=>d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('dateRange').textContent=f(d14)+' – '+f(now);
+}
 
-  const DAYS=14, now=Date.now(), dayMs=86400000;
-  const buckets=[];
-  for(let i=0;i<DAYS;i++){
-    const ts=now-(DAYS-1-i)*dayMs;
-    buckets.push({label:new Date(ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}),count:0});
-  }
-  landing.forEach(e=>{
-    const idx=DAYS-1-Math.floor((now-e.t)/dayMs);
-    if(idx>=0&&idx<DAYS)buckets[idx].count++;
+/* ─── AREA CHART ─── */
+function renderArea(views){
+  const svg = document.getElementById('areaChart');
+  const W   = svg.parentElement.offsetWidth||880;
+  const H   = 190;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('width',W);
+
+  const landing = views.filter(e=>+e.step===0);
+  const DAYS=14, now=Date.now(), ms=864e5;
+  const buckets = Array.from({length:DAYS},(_,i)=>{
+    const s=now-(DAYS-1-i)*ms, e=s+ms;
+    return {
+      n: landing.filter(x=>x.t>=s&&x.t<e).length,
+      d: new Date(s)
+    };
   });
+  const maxV = Math.max(...buckets.map(b=>b.n),1);
+  const pad  = {l:42,r:16,t:18,b:38};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
 
-  const W=800,H=150,pt=15,pb=28,pl=10,pr=10;
-  const iw=W-pl-pr, ih=H-pt-pb;
-  const mx=Math.max(...buckets.map(b=>b.count),1);
+  const pts = buckets.map((b,i)=>({
+    x: pad.l+i*(cw/(DAYS-1)),
+    y: pad.t+ch-(b.n/maxV)*ch
+  }));
 
-  const pts=buckets.map((b,i)=>[pl+(i/(DAYS-1))*iw, pt+ih-(b.count/mx)*ih]);
-  const linePath=pts.map((p,i)=>(i===0?`M${p[0].toFixed(1)},${p[1].toFixed(1)}`:`L${p[0].toFixed(1)},${p[1].toFixed(1)}`)).join('');
-  const areaPath=linePath+` L${pts[pts.length-1][0]},${H-pb} L${pts[0][0]},${H-pb} Z`;
+  function curve(ps){
+    let d=`M${ps[0].x} ${ps[0].y}`;
+    for(let i=1;i<ps.length;i++){
+      const cx=(ps[i-1].x+ps[i].x)/2;
+      d+=` C${cx} ${ps[i-1].y} ${cx} ${ps[i].y} ${ps[i].x} ${ps[i].y}`;
+    }
+    return d;
+  }
 
-  const step=Math.ceil(DAYS/7);
-  const labels=buckets.map((b,i)=>{
-    if(i%step!==0&&i!==DAYS-1)return '';
-    const x=pl+(i/(DAYS-1))*iw;
-    return `<text x="${x.toFixed(1)}" y="${H-5}" text-anchor="middle" fill="#bbb" font-size="9" font-family="sans-serif">${b.label}</text>`;
+  const line = curve(pts);
+  const area = line+` L${pts[pts.length-1].x} ${pad.t+ch} L${pts[0].x} ${pad.t+ch}Z`;
+
+  const labs = buckets.map((b,i)=>{
+    if(i%4!==0&&i!==DAYS-1) return '';
+    const lbl=b.d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}).replace('.','');
+    return `<text x="${pts[i].x}" y="${H-6}" text-anchor="middle" font-size="11" fill="#bbb">${lbl}</text>`;
   }).join('');
-
-  const dots=pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#3db8ac"/>`).join('');
 
   svg.innerHTML=`
-    <defs>
-      <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#3db8ac" stop-opacity=".25"/>
-        <stop offset="100%" stop-color="#3db8ac" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    <path d="${areaPath}" fill="url(#ag)"/>
-    <path d="${linePath}" fill="none" stroke="#3db8ac" stroke-width="2.5"/>
-    ${dots}
-    ${labels}
-  `;
+  <defs>
+    <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4A7AF5" stop-opacity=".25"/>
+      <stop offset="100%" stop-color="#4A7AF5" stop-opacity=".02"/>
+    </linearGradient>
+  </defs>
+  <path d="${area}" fill="url(#ag)"/>
+  <path d="${line}" fill="none" stroke="#4A7AF5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="${pad.l-6}" y="${pad.t+6}" text-anchor="end" font-size="10" fill="#ccc">${maxV}</text>
+  ${labs}`;
 }
 
-/* ---------- FUNNEL ---------- */
-const STEPS = [
-  {step:0,  label:'Landing Page'},
-  {step:1,  label:'Escolha de Gênero'},
-  {step:2,  label:'Faixa Etária'},
-  {step:3,  label:'Social Proof'},
-  {step:4,  label:'Objetivo Principal'},
-  {step:5,  label:'Físico Atual'},
-  {step:6,  label:'Interstitial Forma'},
-  {step:7,  label:'Objetivo Corporal'},
-  {step:8,  label:'Áreas do Corpo'},
-  {step:9,  label:'Melhor Forma (tempo)'},
-  {step:10, label:'Interstitial Metabolismo'},
-  {step:11, label:'Tipo Físico'},
-  {step:12, label:'Conhecimento Jejum'},
-  {step:13, label:'Café da Manhã'},
-  {step:14, label:'Almoço'},
-  {step:15, label:'Jantar'},
-  {step:16, label:'Restrição Alimentar'},
-  {step:17, label:'Alimentos Preferidos'},
-  {step:18, label:'Comer em Casa/Fora'},
-  {step:19, label:'Pausa no Fim de Semana'},
-  {step:20, label:'Frequência de Exercícios'},
-  {step:21, label:'Rotina de Trabalho'},
-  {step:22, label:'Dia a Dia'},
-  {step:23, label:'Fôlego'},
-  {step:24, label:'Caminhada'},
-  {step:25, label:'Horas de Sono'},
-  {step:26, label:'Ingestão de Água'},
-  {step:27, label:'Problemas Físicos'},
-  {step:28, label:'Hábitos Ruins'},
-  {step:29, label:'Transformação do Rosto'},
-  {step:30, label:'Eventos que Geraram Peso'},
-  {step:31, label:'Motivação'},
-  {step:32, label:'Altura'},
-  {step:33, label:'Peso Atual'},
-  {step:34, label:'Peso Desejado'},
-  {step:35, label:'Idade'},
-  {step:36, label:'Resultado IMC'},
-  {step:37, label:'Evento Importante'},
-  {step:38, label:'Projeção de Perda'},
-  {step:39, label:'Carregando...'},
-  {step:40, label:'✅ Resultado Final'},
-];
+/* ─── FUNNEL STREAM ─── */
+function renderFunil(sc){
+  const steps  = Array.from({length:41},(_,i)=>i);
+  const counts = steps.map(i=>sc[String(i)]||0);
+  const maxC   = Math.max(...counts,1);
 
-function buildFunnel(){
-  const stepCounts = uniquePerStep(_views);
+  const SW=110, H=280, CY=H/2+16, maxH=210, topPad=16, botPad=64;
+  const W = steps.length*SW;
+  const totalH = H+botPad;
 
-  const maxCount = stepCounts[0]||1;
-  const visibleSteps = STEPS.filter(s=>stepCounts[s.step]>0);
+  const pts = steps.map((_,i)=>({
+    x: i*SW+SW/2,
+    h: Math.max((counts[i]/maxC)*maxH, 3)
+  }));
 
-  if(!visibleSteps.length){
-    document.getElementById('funnelList').innerHTML='<div class="empty-state">Sem dados de funil ainda.<br>Visite o quiz para começar a registrar dados.</div>';
-    return;
+  function curveY(pArr, yFn){
+    let d=`M${pArr[0].x} ${yFn(pArr[0])}`;
+    for(let i=1;i<pArr.length;i++){
+      const cx=(pArr[i-1].x+pArr[i].x)/2;
+      d+=` C${cx} ${yFn(pArr[i-1])} ${cx} ${yFn(pArr[i])} ${pArr[i].x} ${yFn(pArr[i])}`;
+    }
+    return d;
   }
 
-  document.getElementById('funnelList').innerHTML = visibleSteps.map(s=>{
-    const count=stepCounts[s.step]||0;
-    const pct=((count/maxCount)*100).toFixed(1);
-    return `<li class="funnel-item" onclick="showDetail(${s.step},'${s.label.replace(/'/g,"\\'")}',this)">
-      <span class="fi-name">${s.label}</span>
-      <div class="fi-bar-bg"><div class="fi-bar" style="width:${Math.min(100,parseFloat(pct))}%"></div></div>
-      <span class="fi-count">${count}</span>
-      <span class="fi-pct">${pct}%</span>
-    </li>`;
+  const topPath = curveY(pts, p=>CY-p.h/2);
+  const botPath = curveY(pts, p=>CY+p.h/2);
+  const revPts  = [...pts].reverse();
+  let closed    = topPath;
+  revPts.forEach((p,i)=>{
+    if(i===0){ closed+=` L${p.x} ${CY+p.h/2}`; return; }
+    const prev=revPts[i-1];
+    const cx=(prev.x+p.x)/2;
+    closed+=` C${cx} ${CY+prev.h/2} ${cx} ${CY+p.h/2} ${p.x} ${CY+p.h/2}`;
+  });
+  closed+=' Z';
+
+  const gridLines = steps.map((_,i)=>`<line x1="${i*SW}" y1="${topPad}" x2="${i*SW}" y2="${H}" stroke="#f0f0f0" stroke-width="1"/>`).join('');
+
+  const labels = steps.map((s,i)=>{
+    const x=i*SW+SW/2, yBase=H+8;
+    const dropPct = i>0&&counts[0]>0?((counts[i]/counts[0])*100).toFixed(0)+'%':'100%';
+    return `
+      <text x="${x}" y="${yBase+10}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#aaa" letter-spacing=".4">PASSO ${i+1}</text>
+      <text x="${x}" y="${yBase+26}" text-anchor="middle" font-size="12.5" font-weight="800" fill="#1a1a2e">${counts[i]}</text>
+      <text x="${x}" y="${yBase+40}" text-anchor="middle" font-size="10" fill="#bbb">visitantes</text>`;
   }).join('');
+
+  document.getElementById('tab-funil').innerHTML=`
+    <div id="funnelWrap">
+      <svg width="${W}" height="${totalH}" style="display:block">
+        <defs>
+          <linearGradient id="fg" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#4A7AF5" stop-opacity=".85"/>
+            <stop offset="70%" stop-color="#7ba7f8" stop-opacity=".75"/>
+            <stop offset="100%" stop-color="#93b8fc" stop-opacity=".7"/>
+          </linearGradient>
+        </defs>
+        ${gridLines}
+        <path d="${closed}" fill="url(#fg)"/>
+        <path d="${topPath}" fill="none" stroke="rgba(74,122,245,.4)" stroke-width="1.5"/>
+        <path d="${botPath}" fill="none" stroke="rgba(74,122,245,.4)" stroke-width="1.5"/>
+        ${labels}
+      </svg>
+    </div>`;
 }
 
-/* ---------- STEP DETAIL ---------- */
-function showDetail(step, label, el){
-  document.querySelectorAll('.funnel-item').forEach(li=>li.classList.remove('active'));
-  el.classList.add('active');
+/* ─── EVENTOS TABLE ─── */
+function renderEventos(){
+  const sessions = {};
+  _ev.forEach(e=>{
+    if(!sessions[e.s]) sessions[e.s]={sid:e.s,first:e.t,ref:e.ref||'',evs:[]};
+    if(e.t<sessions[e.s].first) sessions[e.s].first=e.t;
+    sessions[e.s].evs.push(e);
+    if(e.ref) sessions[e.s].ref=e.ref;
+  });
 
-  const stepViews = _views.filter(e=>e.step===step);
-  const uniqueSessions = new Set(stepViews.map(e=>e.s)).size;
-  const answers = _answers.filter(e=>e.step===step);
+  const rows = Object.values(sessions).sort((a,b)=>b.first-a.first);
+  const total= rows.length;
+  const pages= Math.ceil(total/_evPP)||1;
+  const page = Math.min(_evPage,pages);
+  const slice= rows.slice((page-1)*_evPP, page*_evPP);
+  const avs  = ['😎','🧑','👩','🙂','😄','🧔','👱','🙍','😊','🤓'];
+  const fDate= t=>new Date(t).toLocaleDateString('pt-BR');
 
-  const times = answers.map(e=>e.ms).filter(Boolean);
-  const avgSec = times.length ? Math.round(times.reduce((a,b)=>a+b,0)/times.length/1000) : null;
-
-  // Answer distribution
-  const dist={};
-  answers.forEach(e=>{
-    if(!e.ans)return;
-    String(e.ans).split(', ').forEach(a=>{
-      const k=a.trim();
-      if(k)dist[k]=(dist[k]||0)+1;
+  const trows = slice.map(s=>{
+    const av  = avs[s.sid.charCodeAt(0)%avs.length];
+    const src = s.ref||'Direct';
+    const cols= s.evs.slice(0,6).map(e=>{
+      if(e.ev==='view')           return `<td><span class="bev view">👁 Visualização</span></td>`;
+      if(e.ev==='answer')         return `<td><span class="bev ans">✓ ${String(e.ans||'').slice(0,14)}</span></td>`;
+      if(e.ev==='checkout_click') return `<td><span class="bev chk">🛒 Checkout</span></td>`;
+      return '<td style="color:#ccc">—</td>';
     });
-  });
-  const entries=Object.entries(dist).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const maxAns=entries[0]?entries[0][1]:1;
+    while(cols.length<4) cols.push('<td style="color:#ddd">—</td>');
+    return `<tr>
+      <td><div class="td-lead"><div class="avatar">${av}</div><span>${fDate(s.first)}</span></div></td>
+      <td><div class="src"><span class="src-dot"></span>${src}</div></td>
+      ${cols.slice(0,4).join('')}
+    </tr>`;
+  }).join('');
 
-  // Drop-off
-  const stepCounts=uniquePerStep(_views);
-  const thisCount=stepCounts[step]||0;
-  const nextStep=STEPS.find(s=>s.step>step);
-  const nextCount=nextStep?stepCounts[nextStep.step]||0:0;
-  const dropPct=thisCount>0&&nextStep?((1-nextCount/thisCount)*100).toFixed(1)+'%':'—';
+  const pgNums = Array.from({length:Math.min(pages,7)},(_,i)=>`<button class="pb${i+1===page?' on':''}" onclick="_evPage=${i+1};renderEventos()">${i+1}</button>`).join('');
 
-  document.getElementById('stepDetail').innerHTML=`
-    <div class="d-title">${label}</div>
-    <div class="d-sub">Etapa ${step} do funil</div>
-    <div class="d-stat-row">
-      <div class="d-stat"><div class="d-stat-val">${uniqueSessions}</div><div class="d-stat-label">Sessões únicas</div></div>
-      <div class="d-stat"><div class="d-stat-val">${answers.length}</div><div class="d-stat-label">Respostas</div></div>
-      <div class="d-stat"><div class="d-stat-val">${avgSec!=null?avgSec+'s':'—'}</div><div class="d-stat-label">Tempo médio</div></div>
-      <div class="d-stat"><div class="d-stat-val">${dropPct}</div><div class="d-stat-label">Abandono</div></div>
+  document.getElementById('tab-eventos').innerHTML=`
+    <div class="tbl-bar">
+      <button class="tbtn" onclick="">⚙ Filtros Avançados</button>
+      <button class="tbtn" onclick="exportCSV()">⬇ Exportar CSV</button>
+      <button class="tbtn red" onclick="resetLeads()">🗑 Resetar Leads</button>
+      <div class="pg-sel">
+        <select onchange="_evPP=+this.value;_evPage=1;renderEventos()">
+          <option value="10"${_evPP===10?' selected':''}>10 por página</option>
+          <option value="25"${_evPP===25?' selected':''}>25 por página</option>
+          <option value="50"${_evPP===50?' selected':''}>50 por página</option>
+        </select>
+      </div>
     </div>
-    ${entries.length?`
-      <div class="ans-section-title">Respostas mais comuns</div>
-      ${entries.map(([ans,cnt])=>`
-        <div class="ans-item">
-          <div class="ans-meta"><span>${ans}</span><span>${cnt} (${((cnt/answers.length)*100).toFixed(0)}%)</span></div>
-          <div class="ans-bg"><div class="ans-fill" style="width:${(cnt/maxAns)*100}%"></div></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Leads</th><th>Source</th>
+          <th>Passo 1</th><th>Passo 2</th><th>Passo 3</th><th>Passo 4</th>
+        </tr></thead>
+        <tbody>${trows||'<tr><td colspan="6" style="text-align:center;color:#ccc;padding:48px;font-size:14px">Sem sessões registradas ainda</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div class="pag">
+      <span>${total} sessão${total!==1?'ões':''} encontrada${total!==1?'s':''}</span>
+      <div class="pag-btns">${pgNums}</div>
+    </div>`;
+}
+
+/* ─── RESUMO ─── */
+function renderResumo(sc, views, answers, checkouts, vViews){
+  // Gênero
+  const gMap={};
+  views.filter(e=>+e.step===1).forEach(e=>{
+    if(!gMap[e.gender||'N/A']) gMap[e.gender||'N/A']=new Set();
+    gMap[e.gender||'N/A'].add(e.s);
+  });
+  const gTotal=Object.values(gMap).reduce((a,s)=>a+s.size,0)||1;
+  const gRows=Object.entries(gMap).sort((a,b)=>b[1].size-a[1].size).map(([g,s])=>`
+    <div class="bar-row">
+      <span class="bar-lbl">${g}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${(s.size/gTotal*100).toFixed(0)}%"></div></div>
+      <span class="bar-n">${s.size}</span>
+    </div>`).join('');
+
+  // Top Respostas
+  const aCounts={};
+  answers.forEach(e=>{ const k=String(e.ans||'').slice(0,24); aCounts[k]=(aCounts[k]||0)+1; });
+  const topA=Object.entries(aCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxA=topA[0]?.[1]||1;
+  const aRows=topA.map(([k,v])=>`
+    <div class="bar-row">
+      <span class="bar-lbl" title="${k}">${k.slice(0,16)}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${(v/maxA*100).toFixed(0)}%;background:#10b981"></div></div>
+      <span class="bar-n">${v}</span>
+    </div>`).join('');
+
+  // Checkout stats
+  const chkN  = new Set(checkouts.map(e=>e.s)).size;
+  const vN    = new Set(vViews.map(e=>e.s)).size;
+  const lds   = sc['1']||0;
+  const cvRate= lds>0?((chkN/lds)*100).toFixed(1)+'%':'0%';
+
+  // Funil progress
+  const base=sc['0']||1;
+  const fSteps=[{l:'Landing',s:0},{l:'Gênero',s:1},{l:'50% do funil',s:21},{l:'Completou',s:40}];
+  const fRows=fSteps.map(({l,s})=>{
+    const v=sc[String(s)]||0;
+    return `<div class="bar-row">
+      <span class="bar-lbl">${l}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.min((v/base*100),100).toFixed(0)}%;background:#8b5cf6"></div></div>
+      <span class="bar-n">${v}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tab-resumo').innerHTML=`
+    <div class="res-grid">
+      <div class="mc"><h3>Por Gênero</h3>${gRows||'<p style="color:#ccc;font-size:13px">Sem dados</p>'}</div>
+      <div class="mc"><h3>Top Respostas</h3>${aRows||'<p style="color:#ccc;font-size:13px">Sem dados</p>'}</div>
+      <div class="mc">
+        <h3>Checkout</h3>
+        <div class="stat-row">
+          ${[{v:vN,l:'Visitas vendas'},{v:chkN,l:'Cliques checkout'},{v:cvRate,l:'Taxa conversão'}].map(i=>`<div class="stat"><div class="stat-v">${i.v}</div><div class="stat-l">${i.l}</div></div>`).join('')}
         </div>
-      `).join('')}
-    `:`<div class="empty-state" style="padding:16px 0">Sem respostas registradas nesta etapa</div>`}
-  `;
-}
-
-/* ---------- CHECKOUT ---------- */
-function buildCheckout(){
-  const events = getEvents();
-  const clicks = events.filter(e=>e.ev==='checkout_click');
-  const el = document.getElementById('checkoutSection');
-
-  if(!clicks.length){
-    el.innerHTML='<div class="empty-state">Nenhum clique no checkout registrado ainda.</div>';
-    return;
-  }
-
-  // KPIs
-  const totalViews = _views.filter(e=>e.step===0).length||1;
-  const totalLeads = new Set(_views.map(e=>e.s)).size||1;
-  const ctr = ((clicks.length/totalLeads)*100).toFixed(1);
-
-  // By day (last 14)
-  const DAYS=14, now=Date.now(), dayMs=86400000;
-  const buckets=[];
-  for(let i=0;i<DAYS;i++){
-    const ts=now-(DAYS-1-i)*dayMs;
-    buckets.push({label:new Date(ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}),count:0});
-  }
-  clicks.forEach(e=>{
-    const idx=DAYS-1-Math.floor((now-e.t)/dayMs);
-    if(idx>=0&&idx<DAYS)buckets[idx].count++;
-  });
-  const maxDay=Math.max(...buckets.map(b=>b.count),1);
-
-  // By source
-  const srcMap={};
-  clicks.forEach(e=>{
-    const k=e.ref?simplifyRef(e.ref):'Direto';
-    srcMap[k]=(srcMap[k]||0)+1;
-  });
-  const srcEntries=Object.entries(srcMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const maxSrc=srcEntries[0]?srcEntries[0][1]:1;
-
-  el.innerHTML=`
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px">
-      <div class="d-stat"><div class="d-stat-val" style="color:#e63946">${clicks.length}</div><div class="d-stat-label">Total de cliques</div></div>
-      <div class="d-stat"><div class="d-stat-val" style="color:#e63946">${ctr}%</div><div class="d-stat-label">CTR (cliques / leads)</div></div>
-      <div class="d-stat"><div class="d-stat-val" style="color:#e63946">${new Set(clicks.map(e=>e.s)).size}</div><div class="d-stat-label">Sessões únicas</div></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-      <div>
-        <div class="ans-section-title" style="margin-bottom:12px">Cliques por dia</div>
-        ${buckets.filter(b=>b.count>0||true).map(b=>`
-          <div class="ans-item">
-            <div class="ans-meta"><span>${b.label}</span><span>${b.count}</span></div>
-            <div class="ans-bg"><div class="ans-fill" style="width:${(b.count/maxDay)*100}%;background:linear-gradient(90deg,#e63946,#c1121f)"></div></div>
-          </div>
-        `).join('')}
       </div>
-      <div>
-        <div class="ans-section-title" style="margin-bottom:12px">Por fonte</div>
-        ${srcEntries.length?srcEntries.map(([src,cnt])=>`
-          <div class="ans-item">
-            <div class="ans-meta"><span>${src}</span><span>${cnt}</span></div>
-            <div class="ans-bg"><div class="ans-fill" style="width:${(cnt/maxSrc)*100}%;background:linear-gradient(90deg,#e63946,#c1121f)"></div></div>
-          </div>
-        `).join(''):'<div class="empty-state" style="padding:8px 0">Sem dados de fonte</div>'}
-      </div>
-    </div>
-  `;
+      <div class="mc"><h3>Progresso no Funil</h3>${fRows}</div>
+    </div>`;
 }
 
-/* ---------- BREAKDOWNS ---------- */
-function buildBreakdowns(){
-  // Source
-  const sources={};
-  _views.filter(e=>e.step===0).forEach(e=>{
-    const ref=e.ref||(document.referrer?document.referrer.split('/')[2]:'');
-    const key=ref?simplifyRef(ref):'Direto / Desconhecido';
-    sources[key]=(sources[key]||0)+1;
+/* ─── TAB SWITCH ─── */
+function switchTab(name, btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['funil','eventos','resumo'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===name?'block':'none';
   });
-  renderBarList('sourcePanel', sources, 'Sem dados de tráfego');
+}
 
-  // Gender
-  const genders={};
-  _views.filter(e=>e.gender).forEach(e=>{
-    const g=e.gender==='homem'?'Homem ♂':'Mulher ♀';
-    genders[g]=(genders[g]||0)+1;
+/* ─── EXPORT CSV ─── */
+function exportCSV(){
+  const sess={};
+  _ev.forEach(e=>{
+    if(!sess[e.s]) sess[e.s]={sid:e.s,first:e.t,ref:e.ref||'',evs:[]};
+    sess[e.s].evs.push(e);
   });
-  renderBarList('genderPanel', genders, 'Nenhum gênero registrado');
+  let csv='Sessão,Data,Source,Eventos\n';
+  Object.values(sess).sort((a,b)=>b.first-a.first).forEach(s=>{
+    const d=new Date(s.first).toLocaleDateString('pt-BR');
+    const evStr=s.evs.map(e=>e.ev+(e.ans?':'+e.ans:'')).join(' | ');
+    csv+=`"${s.sid}","${d}","${s.ref||'Direct'}","${evStr}"\n`;
+  });
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
+  a.download='mounjaro-leads.csv'; a.click();
+}
 
-  // Device from user agent (current visitor only as fallback)
-  const devices={};
-  _views.forEach(e=>{
-    const ua=e.ua||'';
-    let d='Desktop';
-    if(/tablet|ipad/i.test(ua))d='Tablet';
-    else if(/mobile|android|iphone/i.test(ua))d='Mobile';
-    devices[d]=(devices[d]||0)+1;
-  });
-  // fallback: detect current device
-  if(!Object.keys(devices).length){
-    const ua=navigator.userAgent;
-    let d='Desktop';
-    if(/tablet|ipad/i.test(ua))d='Tablet';
-    else if(/mobile|android|iphone/i.test(ua))d='Mobile';
-    devices[d]=1;
+/* ─── RESET ─── */
+function resetLeads(){
+  if(confirm('Apagar todos os dados de analytics armazenados localmente?')){
+    localStorage.removeItem(KEY); localStorage.removeItem(CKEY);
+    _ev=[]; render();
   }
-  renderBarList('devicePanel', devices, 'Sem dados');
 }
 
-function simplifyRef(ref){
-  if(!ref)return 'Direto';
-  if(/facebook|fb\.com|m\.facebook/i.test(ref))return 'Facebook';
-  if(/instagram/i.test(ref))return 'Instagram';
-  if(/google/i.test(ref))return 'Google';
-  if(/tiktok/i.test(ref))return 'TikTok';
-  if(/youtube/i.test(ref))return 'YouTube';
-  if(/whatsapp/i.test(ref))return 'WhatsApp';
-  return ref.replace(/^www\./,'').split('/')[0];
-}
-
-function renderBarList(id, obj, emptyMsg){
-  const el=document.getElementById(id);
-  const entries=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
-  if(!entries.length){el.innerHTML=`<div class="empty-state">${emptyMsg||'Sem dados'}</div>`;return;}
-  const max=entries[0][1];
-  el.innerHTML=entries.map(([name,cnt])=>`
-    <div class="bar-item">
-      <span class="bar-name" title="${name}">${name}</span>
-      <div class="bar-bg"><div class="bar-fill" style="width:${(cnt/max)*100}%"></div></div>
-      <span class="bar-count">${cnt}</span>
-    </div>
-  `).join('');
-}
+/* ─── RESIZE ─── */
+window.addEventListener('resize',()=>{
+  if(_ev.length) renderArea(_ev.filter(e=>e.ev==='view'&&e.step!=='vendas'));
+});
 </script>
 </body>
 </html>
