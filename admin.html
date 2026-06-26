@@ -438,19 +438,26 @@ function renderEventos(){
   const trows = slice.map(s=>{
     const av  = avs[s.sid.charCodeAt(0)%avs.length];
     const src = s.ref||'Direct';
-    const cols= s.evs.slice(0,6).map(e=>{
-      if(e.ev==='view')           return `<td><span class="bev view">👁 Visualização</span></td>`;
-      if(e.ev==='answer')         return `<td><span class="bev ans">✓ ${String(e.ans||'').slice(0,14)}</span></td>`;
+    // build one cell per view/answer/checkout event, all steps
+    const evsSorted = s.evs.slice().sort((a,b)=>a.t-b.t);
+    const cols = evsSorted.map(e=>{
+      if(e.ev==='view')           return `<td><span class="bev view">👁 Etapa ${e.step!==undefined?+e.step+1:''}</span></td>`;
+      if(e.ev==='answer')         return `<td><span class="bev ans">✓ ${String(e.ans||'').slice(0,16)}</span></td>`;
       if(e.ev==='checkout_click') return `<td><span class="bev chk">🛒 Checkout</span></td>`;
-      return '<td style="color:#ccc">—</td>';
-    });
-    while(cols.length<4) cols.push('<td style="color:#ddd">—</td>');
+      return '';
+    }).filter(Boolean);
+    const maxCols = Math.max(...slice.map(s=>s.evs.length), 4);
+    while(cols.length < 4) cols.push('<td style="color:#ddd">—</td>');
     return `<tr>
-      <td><div class="td-lead"><div class="avatar">${av}</div><span>${fDate(s.first)}</span></div></td>
-      <td><div class="src"><span class="src-dot"></span>${src}</div></td>
-      ${cols.slice(0,4).join('')}
+      <td style="position:sticky;left:0;background:#fff;z-index:1"><div class="td-lead"><div class="avatar">${av}</div><span>${fDate(s.first)}</span></div></td>
+      <td style="position:sticky;left:120px;background:#fff;z-index:1"><div class="src"><span class="src-dot"></span>${src}</div></td>
+      ${cols.join('')}
     </tr>`;
   }).join('');
+
+  // dynamic header — find max events across visible sessions
+  const maxEvs = Math.max(...slice.map(s=>s.evs.length), 4);
+  const thCols = Array.from({length:maxEvs},(_,i)=>`<th>Passo ${i+1}</th>`).join('');
 
   const pgNums = Array.from({length:Math.min(pages,7)},(_,i)=>`<button class="pb${i+1===page?' on':''}" onclick="_evPage=${i+1};renderEventos()">${i+1}</button>`).join('');
 
@@ -467,13 +474,14 @@ function renderEventos(){
         </select>
       </div>
     </div>
-    <div class="tbl-wrap">
-      <table>
+    <div class="tbl-wrap" style="overflow-x:auto">
+      <table style="min-width:700px">
         <thead><tr>
-          <th>Leads</th><th>Source</th>
-          <th>Passo 1</th><th>Passo 2</th><th>Passo 3</th><th>Passo 4</th>
+          <th style="position:sticky;left:0;background:#fafafa;z-index:2">Leads</th>
+          <th style="position:sticky;left:120px;background:#fafafa;z-index:2">Source</th>
+          ${thCols}
         </tr></thead>
-        <tbody>${trows||'<tr><td colspan="6" style="text-align:center;color:#ccc;padding:48px;font-size:14px">Sem sessões registradas ainda</td></tr>'}</tbody>
+        <tbody>${trows||`<tr><td colspan="${maxEvs+2}" style="text-align:center;color:#ccc;padding:48px;font-size:14px">Sem sessões registradas ainda</td></tr>`}</tbody>
       </table>
     </div>
     <div class="pag">
