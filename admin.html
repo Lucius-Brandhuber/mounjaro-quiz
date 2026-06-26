@@ -193,39 +193,65 @@ function clearData(){
 }
 
 /* ---------- DATA ---------- */
+const CACHE_KEY = 'mdjp_admin_cache';
+
+function getCached(){
+  try{ return JSON.parse(localStorage.getItem(CACHE_KEY)||'[]'); }catch(e){ return []; }
+}
+
+function mergeEvents(a, b){
+  const seen = new Set(a.map(e=>e.s+'|'+e.ev+'|'+e.step));
+  b.forEach(e=>{ const k=e.s+'|'+e.ev+'|'+e.step; if(!seen.has(k)){seen.add(k);a.push(e);} });
+  return a;
+}
+
 async function getEvents(){
-  // fetch from GAS (all visitors) and merge with local backup
+  let local = [];
+  try{ local = JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){}
   let remote = [];
   try{
     const r = await fetch(GAS);
     remote = await r.json();
     if(!Array.isArray(remote)) remote = [];
-  }catch(e){}
-  let local = [];
-  try{ local = JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){}
-  // merge by dedup on session+step+ev
-  const seen = new Set(remote.map(e=>e.s+'|'+e.ev+'|'+e.step));
-  local.forEach(e=>{ const k=e.s+'|'+e.ev+'|'+e.step; if(!seen.has(k)){seen.add(k);remote.push(e);} });
-  return remote;
+    const merged = mergeEvents(remote, local);
+    localStorage.setItem(CACHE_KEY, JSON.stringify(merged));
+    return merged;
+  }catch(e){
+    return mergeEvents(getCached(), local);
+  }
 }
 
 /* ---------- MAIN BUILD ---------- */
 let _views=[], _answers=[];
 
 async function buildDash(){
-  // show loading state
-  const dash = document.getElementById('dash');
-  const loader = document.createElement('div');
-  loader.id='_loader';
-  loader.style.cssText='position:fixed;top:12px;right:16px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;z-index:999';
-  loader.textContent='Carregando dados…';
-  dash.appendChild(loader);
+  // render instantly from cache, then refresh from remote
+  const cached = mergeEvents(getCached(), (()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){return[];}})());
+  if(cached.length > 0){
+    _views = cached.filter(e=>e.ev==='view');
+    _answers = cached.filter(e=>e.ev==='answer');
+    renderDash(cached);
+  }
+
+  // fetch remote in background
+  const indicator = document.createElement('div');
+  indicator.id='_loader';
+  indicator.style.cssText='position:fixed;top:12px;right:16px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;z-index:999';
+  indicator.textContent='Atualizando…';
+  document.getElementById('dash').appendChild(indicator);
+
   const events = await getEvents();
-  loader.remove();
+  indicator.remove();
   _views = events.filter(e=>e.ev==='view');
   _answers = events.filter(e=>e.ev==='answer');
 
-  // Date range display
+  renderDash(events);
+}
+
+function renderDash(events){
+  _views = events.filter(e=>e.ev==='view');
+  _answers = events.filter(e=>e.ev==='answer');
+
   const now = new Date();
   const d14 = new Date(now - 14*86400000);
   const fmt = d => d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
