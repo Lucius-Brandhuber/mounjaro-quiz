@@ -172,6 +172,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f5f6fa;color:#1a1a2e;mi
 <script>
 const PWD = 'L3c1U64&5';
 const KEY = 'mdjp_ev';
+const GAS = 'https://script.google.com/macros/s/AKfycby-7fqfYdyX3_ox1ooSlplYeo-UfHzzXh37g7PJNW0AlrxRjJ3eid5HBxr9i25LeBX8/exec';
 
 function auth(){
   if(document.getElementById('pwd').value === PWD){
@@ -191,16 +192,35 @@ function clearData(){
 }
 
 /* ---------- DATA ---------- */
-function getEvents(){
-  try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }
-  catch(e){ return []; }
+async function getEvents(){
+  // fetch from GAS (all visitors) and merge with local backup
+  let remote = [];
+  try{
+    const r = await fetch(GAS);
+    remote = await r.json();
+    if(!Array.isArray(remote)) remote = [];
+  }catch(e){}
+  let local = [];
+  try{ local = JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){}
+  // merge by dedup on session+step+ev
+  const seen = new Set(remote.map(e=>e.s+'|'+e.ev+'|'+e.step));
+  local.forEach(e=>{ const k=e.s+'|'+e.ev+'|'+e.step; if(!seen.has(k)){seen.add(k);remote.push(e);} });
+  return remote;
 }
 
 /* ---------- MAIN BUILD ---------- */
 let _views=[], _answers=[];
 
-function buildDash(){
-  const events = getEvents();
+async function buildDash(){
+  // show loading state
+  const dash = document.getElementById('dash');
+  const loader = document.createElement('div');
+  loader.id='_loader';
+  loader.style.cssText='position:fixed;top:12px;right:16px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;z-index:999';
+  loader.textContent='Carregando dados…';
+  dash.appendChild(loader);
+  const events = await getEvents();
+  loader.remove();
   _views = events.filter(e=>e.ev==='view');
   _answers = events.filter(e=>e.ev==='answer');
 

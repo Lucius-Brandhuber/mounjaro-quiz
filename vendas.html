@@ -465,18 +465,32 @@ function toggleFaq(el){
 }
 
 // ── CHECKOUT CLICK TRACKING ──
-document.querySelectorAll('a[href="https://checkout.payt.com.br/c/4MA9W6"]').forEach(function(a){
-  a.addEventListener('click',function(){
-    try{
-      var KEY='mdjp_ev';
-      var arr=JSON.parse(localStorage.getItem(KEY)||'[]');
-      var sid=sessionStorage.mdjp_sid||('v'+Date.now().toString(36));
-      arr.push({ev:'checkout_click',t:Date.now(),s:sid,ref:document.referrer?document.referrer.split('/')[2]:'',ua:navigator.userAgent});
-      if(arr.length>10000)arr.splice(0,arr.length-10000);
-      localStorage.setItem(KEY,JSON.stringify(arr));
-    }catch(e){}
+(function(){
+  var KEY='mdjp_ev';
+  var GAS='https://script.google.com/macros/s/AKfycby-7fqfYdyX3_ox1ooSlplYeo-UfHzzXh37g7PJNW0AlrxRjJ3eid5HBxr9i25LeBX8/exec';
+  function getSid(){
+    var s=sessionStorage.getItem('mdjp_sid');
+    if(!s){s='v'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);sessionStorage.setItem('mdjp_sid',s);}
+    return s;
+  }
+  // track page view on vendas
+  (function(){
+    var obj={ev:'view',t:Date.now(),s:getSid(),step:'vendas',name:'Página de Vendas',ref:document.referrer?document.referrer.split('/')[2]:''};
+    try{var arr=JSON.parse(localStorage.getItem(KEY)||'[]');arr.push(obj);localStorage.setItem(KEY,JSON.stringify(arr));}catch(e){}
+    if(navigator.sendBeacon){navigator.sendBeacon(GAS,JSON.stringify(obj));}
+    else{fetch(GAS,{method:'POST',body:JSON.stringify(obj),mode:'no-cors'}).catch(function(){});}
+  })();
+  document.querySelectorAll('a[href="https://checkout.payt.com.br/c/4MA9W6"]').forEach(function(a){
+    a.addEventListener('click',function(){
+      try{
+        var obj={ev:'checkout_click',t:Date.now(),s:getSid(),ref:document.referrer?document.referrer.split('/')[2]:'',ua:navigator.userAgent};
+        try{var arr=JSON.parse(localStorage.getItem(KEY)||'[]');arr.push(obj);localStorage.setItem(KEY,JSON.stringify(arr));}catch(e){}
+        if(navigator.sendBeacon){navigator.sendBeacon(GAS,JSON.stringify(obj));}
+        else{fetch(GAS,{method:'POST',body:JSON.stringify(obj),mode:'no-cors'}).catch(function(){});}
+      }catch(e){}
+    });
   });
-});
+})();
 </script>
 </body>
 </html>

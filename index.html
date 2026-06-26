@@ -924,16 +924,32 @@ function setWUnit(u){
 /* -------- ANALYTICS -------- */
 !function(){
   var KEY='mdjp_ev';
+  var GAS='https://script.google.com/macros/s/AKfycby-7fqfYdyX3_ox1ooSlplYeo-UfHzzXh37g7PJNW0AlrxRjJ3eid5HBxr9i25LeBX8/exec';
   var _sid=null,_lastStep=-1,_t0=Date.now();
-  function sid(){if(!_sid)_sid=Date.now().toString(36)+Math.random().toString(36).slice(2,8);return _sid;}
+  function sid(){
+    if(!_sid){
+      _sid=sessionStorage.getItem('mdjp_sid');
+      if(!_sid){_sid=Date.now().toString(36)+Math.random().toString(36).slice(2,8);sessionStorage.setItem('mdjp_sid',_sid);}
+    }
+    return _sid;
+  }
   function push(ev,data){
     try{
-      var arr=JSON.parse(localStorage.getItem(KEY)||'[]');
       var obj={ev:ev,t:Date.now(),s:sid()};
       for(var k in data)obj[k]=data[k];
-      arr.push(obj);
-      if(arr.length>10000)arr.splice(0,arr.length-10000);
-      localStorage.setItem(KEY,JSON.stringify(arr));
+      // localStorage backup
+      try{
+        var arr=JSON.parse(localStorage.getItem(KEY)||'[]');
+        arr.push(obj);
+        if(arr.length>5000)arr.splice(0,arr.length-5000);
+        localStorage.setItem(KEY,JSON.stringify(arr));
+      }catch(e){}
+      // send to backend
+      if(navigator.sendBeacon){
+        navigator.sendBeacon(GAS,JSON.stringify(obj));
+      } else {
+        fetch(GAS,{method:'POST',body:JSON.stringify(obj),mode:'no-cors'}).catch(function(){});
+      }
     }catch(e){}
   }
   window._mdjpView=function(){
