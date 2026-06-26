@@ -492,11 +492,13 @@ function renderEventos(){
 
 /* ─── RESUMO ─── */
 function renderResumo(sc, views, answers, checkouts, vViews){
-  // Gênero — usar answer do step 1 (ans = 'homem'/'mulher')
+  // Gênero — views do step>=2 já têm gender definido (step 1 answer nunca é enviado)
   const gMap={};
-  answers.filter(e=>+e.step===1).forEach(e=>{
-    const g=e.ans||e.gender||'N/A';
-    if(!gMap[g]) gMap[g]=new Set();
+  const gSeen=new Set();
+  views.filter(e=>+e.step>=2&&e.gender).sort((a,b)=>a.t-b.t).forEach(e=>{
+    if(gSeen.has(e.s))return; gSeen.add(e.s);
+    const g=e.gender;
+    if(!gMap[g])gMap[g]=new Set();
     gMap[g].add(e.s);
   });
   const gTotal=Object.values(gMap).reduce((a,s)=>a+s.size,0)||1;
