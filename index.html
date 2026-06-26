@@ -188,6 +188,22 @@ function buildScreens(g){
       {text:'Perder peso',emoji:'🤘'},{text:'Ficar em forma',emoji:'👌'},
       {text:'Melhorar a saúde do coração',emoji:'🫀'},{text:'Aliviar o estresse',emoji:'🧘'}
     ]},
+    // 2b: DOR — há quanto tempo
+    {type:'single-emoji',title:'Há quanto tempo você tenta emagrecer sem conseguir?',options:[
+      {text:'Algumas semanas',emoji:'🗓️'},{text:'Alguns meses',emoji:'😕'},
+      {text:'Mais de um ano',emoji:'😣'},{text:'Já perdi as contas',emoji:'😩'}
+    ]},
+    // 2c: DOR — o que mais incomoda
+    {type:'single-emoji',title:'O que mais te incomoda no seu peso hoje?',options:[
+      {text:'As roupas não servem mais',emoji:'👖'},{text:'Falta de energia e disposição',emoji:'🔋'},
+      {text:'Vergonha em fotos e na praia',emoji:'📸'},{text:'Minha saúde',emoji:'🩺'},
+      {text:'Minha autoestima',emoji:'💔'}
+    ]},
+    // 2d: DOR — já desistiu antes
+    {type:'single-emoji',title:'Você já começou uma dieta ou academia e desistiu no meio?',options:[
+      {text:'Sim, várias vezes',emoji:'😮‍💨'},{text:'Sim, uma vez',emoji:'😐'},
+      {text:'Nunca tentei de verdade',emoji:'🤔'}
+    ]},
     // 3: físico
     {type:'single-image',title:'Como você descreveria seu físico?',options:h?[
       {text:'Magro',img:IMGS+'h7.webp'},{text:'Flácido',img:IMGS+'h8.webp'},
@@ -406,7 +422,7 @@ function renderLanding(app){
   <div class="land-hdr"><img src="${LOGO}" alt="Mounjaro de Pobre"></div>
   <div class="land-hero">
     <h1>Este <em>Método de Jejum Adaptado</em> está ajudando Homens e Mulheres a <em>eliminar até 10kg em 21 dias</em> sem passar fome</h1>
-    <p>Responda esse teste gratuito de apenas 2 minutos e aprenda 👇</p>
+    <p>Responda esse teste rápido e gratuito e aprenda 👇</p>
   </div>
   <img class="land-img" src="${IMGS}imagem inicial.jpg" alt="Antes e Depois">
   <button class="land-cta" onclick="nextStep()">QUERO APRENDER TAMBÉM! 🎉</button>
@@ -834,11 +850,11 @@ function showTest(i){
 /* -------- FINAL RESULT -------- */
 function renderFinalResult(){
   return `<div class="screen" style="text-align:center">
-    <h2 class="final-title">O seu Plano Personalizado de Jejum está pronto!</h2>
-    <p class="final-sub">De acordo com as informações que você nos forneceu, você pode atingir o seu peso ideal:</p>
+    <h2 class="final-title">Seu Plano Personalizado de Jejum está pronto! 🎉</h2>
+    <p class="final-sub">Com base nas suas respostas, montamos um protocolo de jejum adaptado pra você chegar ao seu peso ideal — sem passar fome e sem treino puxado:</p>
     <p class="final-goal">Você chegará ${state.targetWeight}kg em 21 dias</p>
     ${buildProjectionSVG()}
-    <br>
+    <p style="font-size:14px;color:#555;margin:16px 4px 6px;line-height:1.5">Mais de <strong>45 mil pessoas</strong> já seguiram esse mesmo método. Na próxima página você vê seu plano completo e o passo a passo pra começar <strong>hoje</strong>.</p>
     <button class="btn-cta" onclick="window.location.assign(window.location.href.replace(/[^/]*$/,'')+'vendas.html')">VER MEU PLANO AGORA →</button>
   </div>`;
 }

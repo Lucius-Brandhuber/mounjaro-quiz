@@ -240,6 +240,10 @@ const KEY  = 'mdjp_ev';
 const CKEY = 'mdjp_admin_cache';
 const GAS  = 'https://script.google.com/macros/s/AKfycby-7fqfYdyX3_ox1ooSlplYeo-UfHzzXh37g7PJNW0AlrxRjJ3eid5HBxr9i25LeBX8/exec';
 
+// Passos-chave do quiz (telas do quiz + 1). Se mudar a qtd de perguntas, ajuste aqui.
+const QUIZ_FINAL_STEP = 43;  // tela de resultado final
+const QUIZ_MID_STEP   = 22;  // ~metade do quiz
+
 let _ev=[], _vendas=[], _capiLog=[], _evPage=1, _evPP=10;
 
 /* ── AUTH ── */
@@ -425,8 +429,8 @@ function render(){
   const journey=[
     {l:'Visitantes', ico:'👁', v:sc['0']||new Set(views.map(e=>e.s)).size},
     {l:'Leads',      ico:'🙋', v:leadU},
-    {l:'50% Quiz',   ico:'📝', v:sc['21']||0},
-    {l:'Resultado',  ico:'🏁', v:sc['40']||0},
+    {l:'50% Quiz',   ico:'📝', v:sc[String(QUIZ_MID_STEP)]||0},
+    {l:'Resultado',  ico:'🏁', v:sc[String(QUIZ_FINAL_STEP)]||0},
     {l:'Pág. Vendas',ico:'🛒', v:new Set(vViews.map(e=>e.s)).size},
     {l:'Checkout',   ico:'💳', v:new Set(checkouts.map(e=>e.s)).size},
     {l:'Compras',    ico:'🎯', v:_vendas.filter(v=>isApproved(v.status||'')).length},
@@ -509,7 +513,7 @@ function renderArea(views){
 
 /* ── FUNIL DETALHADO ── */
 function renderFunil(sc){
-  const steps=Array.from({length:41},(_,i)=>i);
+  const steps=Array.from({length:QUIZ_FINAL_STEP+1},(_,i)=>i);
   const counts=steps.map(i=>sc[String(i)]||0);
   const maxC=Math.max(...counts,1);
   const SW=100,H=240,CY=H/2+8,maxH=170,botPad=56;
@@ -666,7 +670,7 @@ function renderResumo(sc,views,answers,checkouts,vViews,att){
 
   // Progresso
   const base=sc['0']||1;
-  const fSteps=[{l:'Landing',s:0},{l:'Gênero',s:1},{l:'50% Funil',s:21},{l:'Completou',s:40}];
+  const fSteps=[{l:'Landing',s:0},{l:'Gênero',s:1},{l:'50% Funil',s:QUIZ_MID_STEP},{l:'Completou',s:QUIZ_FINAL_STEP}];
   const fRows=fSteps.map(({l,s})=>{
     const v=sc[String(s)]||0;
     return`<div class="bar-row"><span class="bar-lbl">${l}</span>
