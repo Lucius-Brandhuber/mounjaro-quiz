@@ -435,6 +435,7 @@ function renderGender(app){
 function selectGender(g){
   state.gender=g;
   state.screens=buildScreens(g);
+  if(window._mdjpLead) _mdjpLead(g);
   nextStep();
 }
 
@@ -923,11 +924,12 @@ function setWUnit(u){
   render();
 }
 
-/* -------- ANALYTICS -------- */
+/* -------- ANALYTICS + META CAPI -------- */
 !function(){
   var KEY='mdjp_ev';
   var GAS='https://script.google.com/macros/s/AKfycby-7fqfYdyX3_ox1ooSlplYeo-UfHzzXh37g7PJNW0AlrxRjJ3eid5HBxr9i25LeBX8/exec';
   var _sid=null,_lastStep=-1,_t0=Date.now();
+
   function sid(){
     if(!_sid){
       _sid=localStorage.getItem('mdjp_sid');
@@ -935,53 +937,66 @@ function setWUnit(u){
     }
     return _sid;
   }
-  function seenKey(step){ return 'mdjp_seen_'+sid()+'_'+step; }
-  function hasSeen(step){ return localStorage.getItem(seenKey(step))==='1'; }
-  function markSeen(step){ try{localStorage.setItem(seenKey(step),'1');}catch(e){} }
+  function getCookie(n){var m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?decodeURIComponent(m[1]):'';}
+  function getFbp(){return getCookie('_fbp');}
+  function getFbc(){
+    var c=getCookie('_fbc'); if(c) return c;
+    var p=new URLSearchParams(location.search),f=p.get('fbclid');
+    return f?'fb.1.'+Date.now()+'.'+f:'';
+  }
+  function genEid(prefix){return (prefix||'e')+'_'+sid()+'_'+Date.now();}
+
+  function seenKey(step){return 'mdjp_seen_'+sid()+'_'+step;}
+  function hasSeen(step){return localStorage.getItem(seenKey(step))==='1';}
+  function markSeen(step){try{localStorage.setItem(seenKey(step),'1');}catch(e){}}
 
   function push(ev,data){
     try{
-      // deduplicate: skip view events already sent for this session+step
-      if(ev==='view' && hasSeen(data.step)) return;
-      if(ev==='view') markSeen(data.step);
-
-      var obj={ev:ev,t:Date.now(),s:sid()};
+      if(ev==='view'&&hasSeen(data.step))return;
+      if(ev==='view')markSeen(data.step);
+      var obj={ev:ev,t:Date.now(),s:sid(),fbp:getFbp(),fbc:getFbc(),url:location.href,ua:navigator.userAgent.slice(0,200)};
       for(var k in data)obj[k]=data[k];
-      // localStorage backup
       try{
         var arr=JSON.parse(localStorage.getItem(KEY)||'[]');
-        arr.push(obj);
-        if(arr.length>5000)arr.splice(0,arr.length-5000);
+        arr.push(obj);if(arr.length>5000)arr.splice(0,arr.length-5000);
         localStorage.setItem(KEY,JSON.stringify(arr));
       }catch(e){}
-      // send to backend
-      if(navigator.sendBeacon){
-        navigator.sendBeacon(GAS,JSON.stringify(obj));
-      } else {
-        fetch(GAS,{method:'POST',body:JSON.stringify(obj),mode:'no-cors'}).catch(function(){});
-      }
+      if(navigator.sendBeacon){navigator.sendBeacon(GAS,JSON.stringify(obj));}
+      else{fetch(GAS,{method:'POST',body:JSON.stringify(obj),mode:'no-cors'}).catch(function(){});}
     }catch(e){}
   }
+
   window._mdjpView=function(){
     if(state.step===_lastStep)return;
     _lastStep=state.step;_t0=Date.now();
     var name='Landing';
     if(state.step===1)name='Gênero';
-    else if(state.step>=2&&state.screens){
-      var sc=state.screens[state.step-2];
-      name=sc?(sc.title||sc.type):'Final';
+    else if(state.step>=2&&state.screens){var sc=state.screens[state.step-2];name=sc?(sc.title||sc.type):'Final';}
+    var eid=genEid('pv');
+    // browser pixel com event_id para deduplicação
+    if(typeof fbq!=='undefined'){
+      if(state.step===0) fbq('track','PageView',{},{eventID:eid});
     }
-    push('view',{step:state.step,name:name,gender:state.gender||null,ref:document.referrer?document.referrer.split('/')[2]:''});
+    push('view',{step:state.step,name:name,gender:state.gender||null,ref:document.referrer?document.referrer.split('/')[2]:'',event_id:eid});
   };
+
   window._mdjpAns=function(){
     if(state.step<2||!state.screens)return;
-    var si=state.step-2,sc=state.screens[si];
-    if(!sc)return;
+    var si=state.step-2,sc=state.screens[si];if(!sc)return;
     var a=state.answers[si],ans='';
     if(typeof a==='number'&&sc.options)ans=((sc.options[a]||{}).text)||(''+a);
     else if(Array.isArray(a))ans=a.map(function(i){return sc.options?((sc.options[i]||{}).text||i):i;}).join(', ');
     else if(a!=null)ans=''+a;
     push('answer',{step:state.step,name:sc.title||sc.type,ans:ans,ms:Date.now()-_t0,gender:state.gender||null});
+  };
+
+  // Disparado quando usuário seleciona gênero → Lead event
+  window._mdjpLead=function(g){
+    var eid=genEid('lead');
+    if(typeof fbq!=='undefined'){
+      fbq('track','Lead',{content_name:'Quiz Iniciado'},{eventID:eid});
+    }
+    push('answer',{step:1,name:'Gênero',ans:g,ms:Date.now()-_t0,gender:g,event_id:eid});
   };
 }();
 

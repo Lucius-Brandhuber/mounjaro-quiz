@@ -475,13 +475,28 @@ function toggleFaq(el){
     if(!s){s='v'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);localStorage.setItem('mdjp_sid',s);}
     return s;
   }
-  // track page view on vendas
-  (function(){
-    var obj={ev:'view',t:Date.now(),s:getSid(),step:'vendas',name:'Página de Vendas',ref:document.referrer?document.referrer.split('/')[2]:''};
+  function getCookie(n){var m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?decodeURIComponent(m[1]):'';}
+  function getFbp(){return getCookie('_fbp');}
+  function getFbc(){
+    var c=getCookie('_fbc');if(c)return c;
+    var p=new URLSearchParams(location.search),f=p.get('fbclid');
+    return f?'fb.1.'+Date.now()+'.'+f:'';
+  }
+  function send(obj){
     try{var arr=JSON.parse(localStorage.getItem(KEY)||'[]');arr.push(obj);localStorage.setItem(KEY,JSON.stringify(arr));}catch(e){}
     if(navigator.sendBeacon){navigator.sendBeacon(GAS,JSON.stringify(obj));}
     else{fetch(GAS,{method:'POST',body:JSON.stringify(obj),mode:'no-cors'}).catch(function(){});}
+  }
+  // ViewContent — visita à página de vendas
+  (function(){
+    var sid=getSid();
+    var eid='vc_'+sid+'_'+Date.now();
+    if(typeof fbq!=='undefined') fbq('track','ViewContent',{value:79.90,currency:'BRL'},{eventID:eid});
+    send({ev:'view',t:Date.now(),s:sid,step:'vendas',name:'Página de Vendas',
+          ref:document.referrer?document.referrer.split('/')[2]:'',
+          fbp:getFbp(),fbc:getFbc(),url:location.href,ua:navigator.userAgent.slice(0,200),event_id:eid});
   })();
+  // InitiateCheckout — clique no botão
   document.querySelectorAll('a[href="https://checkout.payt.com.br/c/4MA9W6"]').forEach(function(a){
     a.addEventListener('click',function(){
       try{
@@ -489,10 +504,11 @@ function toggleFaq(el){
         var seenKey='mdjp_seen_'+sid+'_checkout';
         if(localStorage.getItem(seenKey)==='1') return;
         localStorage.setItem(seenKey,'1');
-        var obj={ev:'checkout_click',t:Date.now(),s:sid,ref:document.referrer?document.referrer.split('/')[2]:'',ua:navigator.userAgent};
-        try{var arr=JSON.parse(localStorage.getItem(KEY)||'[]');arr.push(obj);localStorage.setItem(KEY,JSON.stringify(arr));}catch(e){}
-        if(navigator.sendBeacon){navigator.sendBeacon(GAS,JSON.stringify(obj));}
-        else{fetch(GAS,{method:'POST',body:JSON.stringify(obj),mode:'no-cors'}).catch(function(){});}
+        var eid='chk_'+sid+'_'+Date.now();
+        if(typeof fbq!=='undefined') fbq('track','InitiateCheckout',{value:79.90,currency:'BRL'},{eventID:eid});
+        send({ev:'checkout_click',t:Date.now(),s:sid,
+              ref:document.referrer?document.referrer.split('/')[2]:'',
+              fbp:getFbp(),fbc:getFbc(),url:location.href,ua:navigator.userAgent.slice(0,200),event_id:eid});
       }catch(e){}
     });
   });
