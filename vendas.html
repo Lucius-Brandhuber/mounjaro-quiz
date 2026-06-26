@@ -127,6 +127,34 @@ img{max-width:100%;display:block}
 
 /* ── FOOTER ── */
 footer{padding:20px;text-align:center;font-size:12px;color:#aaa;border-top:1px solid #eee}
+
+/* ── DESKTOP (≥768px) ── */
+@media(min-width:768px){
+  .hero{padding:56px 40px 48px}
+  .hero h1{font-size:38px}
+  .hero-imgs img{max-width:300px}
+  .hero-sub{font-size:16px}
+  .sec{max-width:860px;padding:48px 40px}
+  .how-inner{max-width:860px}
+  .how-steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .how-step{flex-direction:column;align-items:center;text-align:center;margin-bottom:0}
+  .inside-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+  .inside-item{margin-bottom:14px}
+  .price-box{max-width:480px;margin:0 auto 20px}
+  .test-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .ba-slide img{max-height:500px;object-fit:contain}
+  .guar-box{max-width:600px;margin:0 auto}
+  .faq-item{max-width:860px}
+  .btn-cta{max-width:420px;font-size:18px}
+  .btn-cta-inv{max-width:420px;font-size:18px}
+  .footer-cta{padding:56px 40px}
+  .hero-imgs{gap:16px}
+  .hero-imgs img{max-width:340px;width:40%}
+}
+@media(min-width:1100px){
+  .sec{max-width:1000px}
+  .how-inner{max-width:1000px}
+}
 </style>
 </head>
 <body>
@@ -430,8 +458,10 @@ setInterval(()=>baMove(1),3500);
 
 // ── FAQ ──
 function toggleFaq(el){
-  const item=el.parentElement;
-  item.classList.toggle('open');
+  const item=el.closest('.faq-item');
+  const isOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
 }
 
 // ── SMOOTH SCROLL for anchors ──
